@@ -13,7 +13,7 @@ import model.Myynti;
 import model.dao.Dao;
 
 
-@WebServlet("/asiakkaat")
+@WebServlet("/asiakkaat/*")
 public class Asiakkaat extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
@@ -25,9 +25,12 @@ public class Asiakkaat extends HttpServlet {
 
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("asiakkaat.doGet()");
+		System.out.println("Asiakkaat.doGet()");
+		String pathInfo = request.getPathInfo();
+		System.out.println("polku: "+pathInfo);
+		String hakusana = pathInfo.replace("/", "");
 		Dao dao = new Dao();
-		ArrayList<Myynti> asiakkaat = dao.listaaKaikki();
+		ArrayList<Myynti> asiakkaat = dao.listaaKaikki(hakusana);
 		System.out.println(asiakkaat);
 		String strJSON = new JSONObject().put("asiakkaat", asiakkaat).toString();
 		response.setContentType("application/json");
@@ -37,7 +40,22 @@ public class Asiakkaat extends HttpServlet {
 
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("asiakkaat.doPost()");
+		System.out.println("Asiakkaat.doPost()");
+		JSONObject jsonObj = new JsonStrToObj().convert(request);
+		Myynti asiakas = new Myynti();
+		asiakas.setEtunimi(jsonObj.getString("etunimi"));
+		asiakas.setSukunimi(jsonObj.getString("sukunimi"));
+		asiakas.setPuhelin(jsonObj.getString("puhelin"));
+		asiakas.setSposti(jsonObj.getString("sposti"));
+		response.setContentType("application/json");
+		PrintWriter out = response.getWriter();
+		Dao dao = new Dao();
+		if(dao.lisaaAsiakas(asiakas)) {
+			out.println("{\"response\":1}");
+		} else {
+			out.println("{\"response\":0}");
+		}
+		
 	}
 
 
@@ -48,6 +66,18 @@ public class Asiakkaat extends HttpServlet {
 
 	protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("asiakkaat.doDelete()");
+		String pathInfo = request.getPathInfo();
+		System.out.println("polku: "+pathInfo);
+		int asiakas_id = Integer.parseInt(pathInfo.replace("/", ""));
+		Dao dao = new Dao();
+		response.setContentType("application/json");
+		PrintWriter out = response.getWriter();
+		if(dao.poistaAsiakas(asiakas_id)){ //metodi palauttaa true/false
+			out.println("{\"response\":1}"); //Asiakkaan poisto onnistui {"response":1}
+		}else {
+			out.println("{\"response\":0}"); //Asiakkaan poisto epäonnistui {"response":0}
+		}
+		
 	}
 
 }

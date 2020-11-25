@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import model.Myynti;
+import java.sql.SQLException;
 
 public class Dao {
 	private Connection con=null;
@@ -56,6 +57,74 @@ public class Dao {
 			e.printStackTrace();
 		}		
 		return asiakkaat;
+	}
+	
+	public ArrayList<Myynti> listaaKaikki(String hakusana) {
+		ArrayList<Myynti> asiakkaat = new ArrayList<Myynti>();
+		sql = "SELECT * FROM asiakkaat WHERE etunimi LIKE ? or sukunimi LIKE ? or puhelin LIKE ? or sposti LIKE ?";
+		try {
+			con=yhdista();
+			if(con!=null){ //jos yhteys onnistui
+				stmtPrep = con.prepareStatement(sql);
+				stmtPrep.setString(1, "%" + hakusana + "%");
+				stmtPrep.setString(2, "%" + hakusana + "%");
+				stmtPrep.setString(3, "%" + hakusana + "%");
+				stmtPrep.setString(4, "%" + hakusana + "%");
+				//stmtPrep.setString(5, "%" + hakusana + "%");
+				rs = stmtPrep.executeQuery();   
+				if(rs!=null){ //jos kysely onnistui
+					//con.close();					
+					while(rs.next()){
+						Myynti myynti = new Myynti();
+						myynti.setAsiakas_id(rs.getInt(1));
+						myynti.setEtunimi(rs.getString(2));
+						myynti.setSukunimi(rs.getString(3));
+						myynti.setPuhelin(rs.getString(4));	
+						myynti.setSposti(rs.getString(5));	
+						asiakkaat.add(myynti);
+					}					
+				}				
+			}	
+			con.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		return asiakkaat;
+	}
+	
+	public boolean lisaaAsiakas(Myynti asiakas) {
+		boolean paluuArvo=true;
+		sql="INSERT INTO asiakkaat(etunimi, sukunimi, puhelin, sposti) VALUES(?,?,?,?)";						  
+		try {
+			con = yhdista();
+			stmtPrep=con.prepareStatement(sql); 
+			stmtPrep.setString(1, asiakas.getEtunimi());
+			stmtPrep.setString(2, asiakas.getSukunimi());
+			stmtPrep.setString(3, asiakas.getPuhelin());
+			stmtPrep.setString(4, asiakas.getSposti());
+			stmtPrep.executeUpdate();
+			con.close();
+		} catch (SQLException e) {				
+			e.printStackTrace();
+			paluuArvo=false;
+		}				
+		return paluuArvo;
+	}
+	
+	public boolean poistaAsiakas(int asiakas_id) {
+		boolean paluuArvo=true;
+		sql="DELETE FROM asiakkaat WHERE asiakas_id=?";
+		try {
+			con = yhdista();
+			stmtPrep=con.prepareStatement(sql); 
+			stmtPrep.setInt(1, asiakas_id);			
+			stmtPrep.executeUpdate();
+			con.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			paluuArvo=false;
+		}
+		return paluuArvo;
 	}
 
 }
