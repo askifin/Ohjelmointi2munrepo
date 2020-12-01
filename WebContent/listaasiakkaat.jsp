@@ -6,7 +6,7 @@
 <meta charset="ISO-8859-1">
 <script src="scripts/main.js"></script>	
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<title>Main-Etätehtävä 4</title>
+<title>Etätehtävä-Main</title>
 </head>
 <style>
 	.pointer {
@@ -68,7 +68,9 @@ function haeAsiakkaat() {
 			htmlStr+="<td>"+field.sukunimi+"</td>";
 			htmlStr+="<td>"+field.puhelin+"</td>";
 			htmlStr+="<td>"+field.sposti+"</td>";
-			htmlStr+="<td><span class='poista' onclick=poista('"+field.asiakas_id+"')>Poista</span></td>";
+			//htmlStr+="<td><span class='poista' onclick=muuta('"+field.asiakas_id+"')>Muuta</span></td>";
+			htmlStr+="<td><a href='muutaasiakas.jsp?asiakas_id="+field.asiakas_id+"'>Muuta</a>&nbsp;"; //1:50 ohje
+			htmlStr+="<span class='poista' onclick=poista('"+field.asiakas_id+"')>Poista</span></td>";
 			htmlStr+="</tr>";
 			$("#listaus tbody").append(htmlStr);
 		});
